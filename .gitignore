@@ -1,0 +1,32 @@
+# dependencies + build output
+node_modules/
+dist/
+build/
+
+# secrets — NEVER commit (Aiven password, JWT secret live here)
+.env
+.env.local
+.env.*.local
+
+# local runtime data
+server/data/
+server/uploads/*
+!server/uploads/.gitkeep
+*.log
+
+# private prompt/spec files — not part of the product
+prompt.txt
+normalpmpt.txt
+uistyle.txt
+light.txt
+responsive-design.txt
+
+# local screenshots / mockups — not part of the product
+*.png
+StackIt – A Minimal Q&A Forum Platform - 8 hours.svg
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

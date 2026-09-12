@@ -1,0 +1,13 @@
+{
+  "name": "stackit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StackIt Q&A platform - run frontend + backend together",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "setup": "npm --prefix server run setup",
+    "build": "npm --prefix client run build"
+  }
+}

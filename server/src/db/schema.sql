@@ -1,0 +1,103 @@
+-- StackIt MySQL schema (Aiven-compatible, utf8mb4)
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(20) NOT NULL UNIQUE,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('user','admin') NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_users_email (email),
+  INDEX idx_users_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS questions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  description MEDIUMTEXT NOT NULL,
+  accepted_answer_id INT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_q_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_q_user (user_id),
+  INDEX idx_q_created (created_at),
+  FULLTEXT INDEX ft_q (title, description)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS answers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  question_id INT NOT NULL,
+  user_id INT NOT NULL,
+  content MEDIUMTEXT NOT NULL,
+  is_accepted TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_a_q FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_a_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_a_q (question_id),
+  INDEX idx_a_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE questions ADD CONSTRAINT fk_q_accepted FOREIGN KEY (accepted_answer_id) REFERENCES answers(id) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS tags (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(40) NOT NULL UNIQUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_tag_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS question_tags (
+  question_id INT NOT NULL,
+  tag_id INT NOT NULL,
+  PRIMARY KEY (question_id, tag_id),
+  CONSTRAINT fk_qt_q FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_qt_t FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS votes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  answer_id INT NOT NULL,
+  vote_type TINYINT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_v_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_v_answer FOREIGN KEY (answer_id) REFERENCES answers(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_vote (user_id, answer_id),
+  INDEX idx_v_answer (answer_id),
+  CONSTRAINT chk_vote CHECK (vote_type IN (1, -1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  answer_id INT NOT NULL,
+  user_id INT NOT NULL,
+  content VARCHAR(2000) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_c_answer FOREIGN KEY (answer_id) REFERENCES answers(id) ON DELETE CASCADE,
+  CONSTRAINT fk_c_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_c_answer (answer_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  recipient_user_id INT NOT NULL,
+  actor_user_id INT NOT NULL,
+  type ENUM('ANSWER_POSTED','ANSWER_COMMENTED','USER_MENTIONED') NOT NULL,
+  message VARCHAR(500) NOT NULL,
+  related_question_id INT NULL,
+  related_answer_id INT NULL,
+  related_comment_id INT NULL,
+  is_read TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_n_recipient FOREIGN KEY (recipient_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_n_actor FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_n_q FOREIGN KEY (related_question_id) REFERENCES questions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_n_a FOREIGN KEY (related_answer_id) REFERENCES answers(id) ON DELETE CASCADE,
+  INDEX idx_n_recipient (recipient_user_id, is_read, created_at),
+  INDEX idx_n_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'react-quill-new/dist/quill.snow.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- theme tokens: light (Airbnb, light.txt) is the default ---------- */
+:root {
+  color-scheme: light;
+  --c-canvas: 255 255 255;
+  --c-surface1: 255 255 255;
+  --c-surface2: 247 247 247;
+  --c-primary: 255 56 92;
+  --c-primary-hover: 224 11 65;
+  --c-primary-pressed: 224 11 65;
+  --c-secondary: 255 56 92;
+  --c-ink: 34 34 34;
+  --c-ink-muted: 63 63 63;
+  --c-ink-tertiary: 106 106 106;
+  --c-ink-link: 255 56 92;
+  --c-hairline: 221 221 221;
+  --c-hairline-strong: 193 193 193;
+  --c-codebg: 242 242 242;
+  --c-quill-icon: 106 106 106;
+  --c-selection-bg: 255 56 92;
+  --c-selection-ink: 255 255 255;
+  --c-scrollbar: 193 193 193;
+}
+
+/* ---------- dark (Beehiiv, uistyle.txt) ---------- */
+.dark {
+  color-scheme: dark;
+  --c-canvas: 6 4 25;
+  --c-surface1: 11 13 42;
+  --c-surface2: 21 25 79;
+  --c-primary: 47 57 186;
+  --c-primary-hover: 42 51 163;
+  --c-primary-pressed: 32 40 140;
+  --c-secondary: 255 94 196;
+  --c-ink: 255 255 255;
+  --c-ink-muted: 196 194 214;
+  --c-ink-tertiary: 157 157 184;
+  --c-ink-link: 179 184 240;
+  --c-hairline: 46 49 104;
+  --c-hairline-strong: 74 79 158;
+  --c-codebg: 0 0 0 / 0.45;
+  --c-quill-icon: 196 194 214;
+  --c-selection-bg: 255 94 196;
+  --c-selection-ink: 6 4 25;
+  --c-scrollbar: 57 58 90;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  @apply bg-canvas text-ink antialiased;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection { background: rgb(var(--c-selection-bg)); color: rgb(var(--c-selection-ink)); }
+
+/* eyebrow label — accent color, the single context where it works as text */
+.eyebrow {
+  @apply text-secondary text-xs font-semibold uppercase tracking-[0.18em];
+}
+
+/* readable rich text — body stays 16px at every breakpoint */
+.rich-body { @apply text-base leading-7 break-words; color: rgb(var(--c-ink-muted)); }
+.rich-body p { @apply my-2; }
+.rich-body ul { @apply list-disc pl-6 my-2 space-y-1; }
+.rich-body ol { @apply list-decimal pl-6 my-2 space-y-1; }
+.rich-body pre {
+  @apply rounded-md p-3 my-3 overflow-x-auto text-[13px] leading-6 border border-hairline;
+  background: rgb(var(--c-codebg));
+  color: rgb(var(--c-ink));
+  font-family: 'JetBrains Mono', monospace;
+}
+.rich-body code { font-family: 'JetBrains Mono', monospace; }
+.rich-body :not(pre) > code { @apply bg-surface2 px-1.5 py-0.5 rounded text-[13px]; color: rgb(var(--c-ink)); }
+.rich-body a { color: rgb(var(--c-ink-link)); @apply underline underline-offset-2; }
+.rich-body img { @apply rounded-xl border border-hairline my-3 max-w-full h-auto; }
+.rich-body blockquote { @apply border-l-4 pl-4 italic my-3; border-color: rgb(var(--c-secondary)); opacity: 0.9; }
+.rich-body h1, .rich-body h2, .rich-body h3 { @apply font-bold mt-4 mb-2; color: rgb(var(--c-ink)); }
+
+/* quill — hairline theme that follows the active theme */
+.ql-toolbar.ql-snow {
+  @apply rounded-t-md border-hairline;
+  background: rgb(var(--c-surface1));
+  position: sticky; top: 0; z-index: 10;
+}
+.ql-toolbar.ql-snow .ql-stroke { stroke: rgb(var(--c-quill-icon)); }
+.ql-toolbar.ql-snow .ql-fill { fill: rgb(var(--c-quill-icon)); }
+.ql-toolbar.ql-snow .ql-picker { color: rgb(var(--c-quill-icon)); }
+.ql-toolbar.ql-snow .ql-picker-options { background: rgb(var(--c-surface1)); @apply border-hairline; }
+.ql-toolbar.ql-snow button:hover .ql-stroke,
+.ql-toolbar.ql-snow button:focus .ql-stroke,
+.ql-toolbar.ql-snow button.ql-active .ql-stroke { stroke: rgb(var(--c-secondary)); }
+.ql-toolbar.ql-snow button:hover .ql-fill,
+.ql-toolbar.ql-snow button.ql-active .ql-fill { fill: rgb(var(--c-secondary)); }
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label { @apply border-hairline; }
+@media (max-width: 640px) {
+  .ql-toolbar.ql-snow { padding: 6px; }
+  .ql-toolbar.ql-snow .ql-formats { margin-right: 8px; }
+}
+.ql-container.ql-snow { @apply rounded-b-md border-hairline text-base min-h-[160px]; background: rgb(var(--c-surface1)); color: rgb(var(--c-ink)); }
+.ql-editor { @apply min-h-[160px] text-base leading-7 max-sm:text-base; font-family: 'Inter', sans-serif; }
+.ql-editor.ql-blank::before { @apply not-italic; color: rgb(var(--c-ink-tertiary)); }
+.ql-editor a { color: rgb(var(--c-ink-link)); }
+.ql-snow .ql-tooltip { background: rgb(var(--c-surface2)); @apply border-hairline rounded-md; color: rgb(var(--c-ink)); }
+.ql-snow .ql-tooltip input { background: rgb(var(--c-surface1)); @apply border-hairline text-base; color: rgb(var(--c-ink)); }
+
+/* focus */
+:focus-visible { outline: 2px solid rgb(var(--c-secondary)); outline-offset: 2px; }
+
+/* thin scrollbars */
+.nice-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.nice-scroll::-webkit-scrollbar-thumb { background: rgb(var(--c-scrollbar)); border-radius: 999px; }
+
+/* horizontal pill rails never overflow their parent */
+.pill-rail { @apply flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap nice-scroll; }
+
+/* light-theme card depth: the single Airbnb shadow tier on hover */
+:root .lift:hover {
+  box-shadow: rgba(0, 0, 0, 0.02) 0 0 0 1px, rgba(0, 0, 0, 0.04) 0 2px 6px 0, rgba(0, 0, 0, 0.1) 0 4px 8px 0;
+}
