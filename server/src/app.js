@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 // Render injects its own public URL — same-origin fullstack deploy needs it allowed.
 const selfUrl = process.env.RENDER_EXTERNAL_URL || null;
-app.use(cors({
+const corsMw = cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
     const allowed = [clientUrl, 'http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
@@ -42,7 +42,29 @@ app.use(cors({
     return cb(new Error('CORS blocked'));
   },
   credentials: true
-}));
+});
+// Same-origin bypass for single-service deploys (Render/Koyeb/HF Spaces):
+// page and API share one host, so answer CORS here and skip the allowlist.
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    try {
+      if (new URL(origin).host === req.get('host')) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Vary', 'Origin');
+        if (req.method === 'OPTIONS') {
+          res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+          res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+          return res.sendStatus(204);
+        }
+        req.sameOrigin = true;
+      }
+    } catch {}
+  }
+  next();
+});
+app.use((req, res, next) => (req.sameOrigin ? next() : corsMw(req, res, next)));
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use('/api/auth', authLimiter);
