@@ -1,0 +1,3 @@
+# Replit: press Run and the fullstack app (API + React build) starts.
+# First time only, run `npm run build` once in the Shell, then press Run.
+run = "npm start"
