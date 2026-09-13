@@ -43,7 +43,7 @@ const corsMw = cors({
   },
   credentials: true
 });
-// Same-origin bypass for single-service deploys (Render/Koyeb/HF Spaces):
+// Same-origin bypass for Render single-service deploy:
 // page and API share one host, so answer CORS here and skip the allowlist.
 app.use((req, res, next) => {
   const origin = req.headers.origin;
