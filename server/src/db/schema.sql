@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS questions (
   CONSTRAINT fk_q_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   INDEX idx_q_user (user_id),
   INDEX idx_q_created (created_at),
-  FULLTEXT INDEX ft_q (title, description)
+  INDEX idx_q_title (title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS answers (
