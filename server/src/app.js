@@ -83,15 +83,17 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/upload', require('./routes/upload'));
 
-// Single-service fullstack deploy: in production Express serves the React
-// build (client/dist) and handles SPA fallback. API/Uploads/Health pass through.
-if (process.env.NODE_ENV === 'production') {
+// Single-service fullstack deploy: Express serves the React build
+// (client/dist) whenever it exists. Works even if NODE_ENV is unset.
+try {
   const dist = path.join(__dirname, '..', '..', 'client', 'dist');
-  app.use(express.static(dist));
-  app.get(/^(?!\/api|\/uploads|\/health).*/, (_req, res) => {
-    res.sendFile(path.join(dist, 'index.html'));
-  });
-}
+  if (require('fs').existsSync(path.join(dist, 'index.html'))) {
+    app.use(express.static(dist));
+    app.get(/^(?!\/api|\/uploads|\/health).*/, (_req, res) => {
+      res.sendFile(path.join(dist, 'index.html'));
+    });
+  }
+} catch {}
 
 app.use('/api', (_req, res) => res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'API route not found' } }));
 
