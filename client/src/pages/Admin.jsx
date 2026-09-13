@@ -97,7 +97,7 @@ export default function Admin() {
         )}
 
         {tab === 'database' ? <DatabaseViewer /> : (
-          <div className="mt-4 bg-surface1 border border-hairline rounded-xl overflow-x-auto nice-scroll">
+          <div className="mt-4 bg-surface1 border border-hairline rounded-xl overflow-x-auto scroll-clean">
             <table className="w-full text-sm min-w-[620px]">
                   <thead className="text-xs uppercase text-inktertiary">
                     <tr className="border-b border-hairline">
@@ -215,7 +215,7 @@ function DatabaseViewer() {
           </button>
         ))}
       </div>
-      <div className="bg-surface1 border border-hairline rounded-xl overflow-x-auto nice-scroll">
+      <div className="bg-surface1 border border-hairline rounded-xl overflow-x-auto scroll-clean">
         <div className="px-4 py-2.5 border-b border-hairline text-sm font-semibold text-ink flex justify-between gap-2">
           <span className="truncate min-w-0">{sel}</span><span className="text-inktertiary font-normal shrink-0 tabular-nums">{total} rows · {page}/{totalPages}</span>
         </div>
